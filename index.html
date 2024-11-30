@@ -3,36 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome Page</title>
+    <title>Web3 DApp</title>
+    <!-- Include Web3.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/4.3.0/web3.min.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f0f0f0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
         }
         .container {
             max-width: 800px;
             margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h1, h2 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 1em;
         }
         h1 {
-            color: #333;
-            text-align: center;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #6e45e2, #88d3ce);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        h2 {
+            font-size: 1.5em;
+            margin-top: 2em;
+            color: #88d3ce;
         }
         p {
-            line-height: 1.6;
-            color: #666;
+            line-height: 1.8;
+            color: #d1d1d1;
+            margin-bottom: 1.2em;
+        }
+        .section {
+            margin-bottom: 2em;
+            padding-bottom: 2em;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .wallet-section {
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+            background: rgba(110, 69, 226, 0.1);
+            border-radius: 12px;
+        }
+        .connect-button {
+            background: linear-gradient(45deg, #6e45e2, #88d3ce);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 15px;
+        }
+        .connect-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(110, 69, 226, 0.4);
+        }
+        .wallet-info {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+        }
+        .network-status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 10px;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background-color: #4CAF50;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to My Page</h1>
-        <p>This is a simple welcome page. We'll be adding more content soon!</p>
+        <h1>Web3 DApp</h1>
+        
+        <div class="wallet-section">
+            <button id="connectWallet" class="connect-button">Connect Wallet</button>
+            <div id="walletInfo" class="wallet-info">
+                <p>Connected Address: <span id="walletAddress">Not Connected</span></p>
+                <div class="network-status">
+                    <span class="status-dot"></span>
+                    <span id="networkName">Not Connected</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>About Our DApp</h2>
+            <p>Welcome to our decentralized application. We're building the future of Web3, connecting users directly with blockchain technology. Our platform provides a seamless interface for interacting with smart contracts and managing digital assets.</p>
+            <p>Built on cutting-edge blockchain technology, we ensure security, transparency, and true ownership of your digital assets.</p>
+        </div>
+
+        <div class="section">
+            <h2>Features</h2>
+            <p>• Secure wallet connection with MetaMask integration</p>
+            <p>• Real-time blockchain network detection</p>
+            <p>• Direct interaction with smart contracts</p>
+            <p>• Multi-chain support</p>
+        </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const connectButton = document.getElementById('connectWallet');
+            const walletInfo = document.getElementById('walletInfo');
+            const walletAddress = document.getElementById('walletAddress');
+            const networkName = document.getElementById('networkName');
+
+            // Check if MetaMask is installed
+            const isMetaMaskInstalled = () => {
+                return typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask;
+            };
+
+            // Handle connect wallet button
+            connectButton.addEventListener('click', async () => {
+                if (!isMetaMaskInstalled()) {
+                    alert('Please install MetaMask to use this feature!');
+                    return;
+                }
+
+                try {
+                    // Request account access
+                    const accounts = await window.ethereum.request({ 
+                        method: 'eth_requestAccounts' 
+                    });
+                    
+                    // Show wallet info
+                    walletInfo.style.display = 'block';
+                    walletAddress.textContent = accounts[0];
+                    connectButton.textContent = 'Wallet Connected';
+                    
+                    // Get network name
+                    const chainId = await window.ethereum.request({ 
+                        method: 'eth_chainId' 
+                    });
+                    
+                    const networks = {
+                        '0x1': 'Ethereum Mainnet',
+                        '0x89': 'Polygon Mainnet',
+                        '0x13881': 'Mumbai Testnet'
+                    };
+                    
+                    networkName.textContent = networks[chainId] || `Chain ID: ${chainId}`;
+                    
+                } catch (error) {
+                    console.error(error);
+                    alert('Failed to connect wallet!');
+                }
+            });
+
+            // Handle account changes
+            if (window.ethereum) {
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    if (accounts.length === 0) {
+                        walletInfo.style.display = 'none';
+                        connectButton.textContent = 'Connect Wallet';
+                    } else {
+                        walletAddress.textContent = accounts[0];
+                    }
+                });
+
+                window.ethereum.on('chainChanged', (chainId) => {
+                    window.location.reload();
+                });
+            }
+        });
+    </script>
 </body>
 </html>
